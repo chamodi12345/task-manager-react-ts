@@ -3,6 +3,7 @@ import { AddTaskForm } from './components/AddTaskForm'
 import { TaskFilter } from './components/TaskFilter'
 import { TaskList } from './components/TaskList'
 import { TaskStats } from './components/TaskStats'
+import { useLocalStorage } from './hooks/useLocalStorage'
 import type { FilterStatus, Task } from './types/task'
 
 const INITIAL_TASKS: Task[] = [
@@ -29,12 +30,21 @@ const INITIAL_TASKS: Task[] = [
   {
     id: '5',
     title: 'Add search filter and union type tabs (all/active/completed)',
+    completed: true,
+  },
+  {
+    id: '6',
+    title: 'Extract useLocalStorage<T> generic hook and persist tasks',
     completed: false,
   },
 ]
 
 function App() {
-  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
+  // Use our custom generic useLocalStorage hook
+  const [tasks, setTasks] = useLocalStorage<Task[]>(
+    'task-manager-tasks',
+    INITIAL_TASKS,
+  )
   const [filter, setFilter] = useState<FilterStatus>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
 
@@ -89,21 +99,23 @@ function App() {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            Feature 5: Search & Filter Tabs
+            Feature 6: Custom Hook & Persistence
           </div>
-          <span className="text-xs text-slate-500 font-mono">Union Types</span>
+          <span className="text-xs text-slate-500 font-mono">
+            useLocalStorage&lt;T&gt;
+          </span>
         </div>
 
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Task Explorer
+            Task Manager
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Filter tasks with union types (
+            Persisted in localStorage with generic custom hook (
             <code className="text-indigo-400 font-mono text-xs">
-              'all' | 'active' | 'completed'
+              useLocalStorage&lt;Task[]&gt;
             </code>
-            ) & live search.
+            ).
           </p>
         </div>
 
