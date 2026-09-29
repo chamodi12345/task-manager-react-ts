@@ -1,5 +1,6 @@
 import { useReducer, useEffect, useState, type ReactNode } from 'react'
 import { taskReducer } from '../reducers/taskReducer'
+import { fetchRemoteTasks } from '../services/taskApi'
 import type { FilterStatus, Task } from '../types/task'
 import { TaskContext, type TaskContextType } from './TaskContext'
 
@@ -44,6 +45,11 @@ const INITIAL_TASKS: Task[] = [
   {
     id: '8',
     title: 'Implement React Context API to avoid prop drilling',
+    completed: true,
+  },
+  {
+    id: '9',
+    title: 'Fetch remote tasks with typed API response and loading states',
     completed: false,
   },
 ]
@@ -61,6 +67,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, dispatch] = useReducer(taskReducer, INITIAL_TASKS, initTasks)
   const [filter, setFilter] = useState<FilterStatus>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -84,6 +92,22 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCompleted = () => {
     dispatch({ type: 'CLEAR_COMPLETED' })
+  }
+
+  const loadRemoteTasks = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const remoteTasks = await fetchRemoteTasks(4)
+      dispatch({
+        type: 'SET_TASKS',
+        payload: { tasks: [...remoteTasks, ...tasks] },
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown network error')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const filteredTasks = tasks.filter((task) => {
@@ -112,12 +136,15 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     setFilter,
     searchQuery,
     setSearchQuery,
+    isLoading,
+    error,
     counts,
     dispatch,
     addTask,
     toggleTask,
     deleteTask,
     clearCompleted,
+    loadRemoteTasks,
   }
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>
