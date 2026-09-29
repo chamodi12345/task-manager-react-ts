@@ -1,27 +1,41 @@
 import { useState } from 'react'
-import { TaskItem } from './components/TaskItem'
+import { TaskList } from './components/TaskList'
 import type { Task } from './types/task'
 
-function App() {
-  const [sampleTask, setSampleTask] = useState<Task>({
+const INITIAL_TASKS: Task[] = [
+  {
     id: '1',
-    title: 'Learn TypeScript interfaces and React component props',
-    completed: false,
-  })
-
-  const [completedTask, setCompletedTask] = useState<Task>({
-    id: '2',
-    title: 'Setup Vite + React + Tailwind v4 project',
+    title: 'Learn React + TypeScript basics',
     completed: true,
-  })
+  },
+  {
+    id: '2',
+    title: 'Render lists with .map() and unique keys',
+    completed: false,
+  },
+  {
+    id: '3',
+    title: 'Build task creation form and lift state up',
+    completed: false,
+  },
+]
 
-  const handleToggleSample = () => {
-    setSampleTask((prev) => ({ ...prev, completed: !prev.completed }))
+function App() {
+  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
+
+  const handleToggleTask = (id: string) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task,
+      ),
+    )
   }
 
-  const handleToggleCompleted = () => {
-    setCompletedTask((prev) => ({ ...prev, completed: !prev.completed }))
+  const handleDeleteTask = (id: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id))
   }
+
+  const completedCount = tasks.filter((t) => t.completed).length
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-indigo-500 selection:text-white">
@@ -29,36 +43,31 @@ function App() {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            Feature 1: TaskItem Component
+            Feature 2: Task List
           </div>
-          <span className="text-xs text-slate-500 font-mono">React + TS</span>
+          <span className="text-xs text-slate-400 font-medium">
+            {completedCount} of {tasks.length} done
+          </span>
         </div>
 
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Task Item Component
+            Task Management List
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Component with strongly typed props (
-            <code className="text-indigo-400 font-mono text-xs">
-              TaskItemProps
-            </code>
-            ).
+            Rendering dynamic arrays using{' '}
+            <code className="text-indigo-400 font-mono text-xs">.map()</code>{' '}
+            and unique{' '}
+            <code className="text-indigo-400 font-mono text-xs">key</code>{' '}
+            props.
           </p>
         </div>
 
-        <div className="space-y-3 pt-2">
-          <TaskItem
-            task={sampleTask}
-            onToggle={handleToggleSample}
-            onDelete={() => alert('Delete clicked for: ' + sampleTask.title)}
-          />
-          <TaskItem
-            task={completedTask}
-            onToggle={handleToggleCompleted}
-            onDelete={() => alert('Delete clicked for: ' + completedTask.title)}
-          />
-        </div>
+        <TaskList
+          tasks={tasks}
+          onToggle={handleToggleTask}
+          onDelete={handleDeleteTask}
+        />
       </div>
     </div>
   )
