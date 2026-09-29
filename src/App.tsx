@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useReducer, useEffect, useState } from 'react'
 import { AddTaskForm } from './components/AddTaskForm'
 import { TaskFilter } from './components/TaskFilter'
 import { TaskList } from './components/TaskList'
 import { TaskStats } from './components/TaskStats'
-import { useLocalStorage } from './hooks/useLocalStorage'
+import { taskReducer } from './reducers/taskReducer'
 import type { FilterStatus, Task } from './types/task'
+
+const STORAGE_KEY = 'task-manager-tasks-reducer'
 
 const INITIAL_TASKS: Task[] = [
   {
@@ -29,48 +31,59 @@ const INITIAL_TASKS: Task[] = [
   },
   {
     id: '5',
-    title: 'Add search filter and union type tabs (all/active/completed)',
+    title: 'Add search filter and union type tabs',
     completed: true,
   },
   {
     id: '6',
-    title: 'Extract useLocalStorage<T> generic hook and persist tasks',
+    title: 'Extract useLocalStorage generic custom hook',
+    completed: true,
+  },
+  {
+    id: '7',
+    title: 'Refactor to useReducer with typed discriminated union actions',
     completed: false,
   },
 ]
 
+// Lazy initializer for useReducer
+function initTasks(defaultTasks: Task[]): Task[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return saved ? (JSON.parse(saved) as Task[]) : defaultTasks
+  } catch {
+    return defaultTasks
+  }
+}
+
 function App() {
-  // Use our custom generic useLocalStorage hook
-  const [tasks, setTasks] = useLocalStorage<Task[]>(
-    'task-manager-tasks',
-    INITIAL_TASKS,
-  )
+  const [tasks, dispatch] = useReducer(taskReducer, INITIAL_TASKS, initTasks)
   const [filter, setFilter] = useState<FilterStatus>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  const handleAddTask = (title: string) => {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false,
+  // Sync reducer state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
+    } catch (e) {
+      console.warn('Could not save to localStorage', e)
     }
-    setTasks((prev) => [newTask, ...prev])
+  }, [tasks])
+
+  const handleAddTask = (title: string) => {
+    dispatch({ type: 'ADD_TASK', payload: { title } })
   }
 
   const handleToggleTask = (id: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
-    )
+    dispatch({ type: 'TOGGLE_TASK', payload: { id } })
   }
 
   const handleDeleteTask = (id: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id))
+    dispatch({ type: 'DELETE_TASK', payload: { id } })
   }
 
   const handleClearCompleted = () => {
-    setTasks((prev) => prev.filter((task) => !task.completed))
+    dispatch({ type: 'CLEAR_COMPLETED' })
   }
 
   // Filter and search logic
@@ -99,23 +112,27 @@ function App() {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            Feature 6: Custom Hook & Persistence
+            Feature 7: useReducer + Actions
           </div>
           <span className="text-xs text-slate-500 font-mono">
-            useLocalStorage&lt;T&gt;
+            Discriminated Unions
           </span>
         </div>
 
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Task Manager
+            Task Reducer Hub
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Persisted in localStorage with generic custom hook (
+            Predictable state updates with{' '}
             <code className="text-indigo-400 font-mono text-xs">
-              useLocalStorage&lt;Task[]&gt;
-            </code>
-            ).
+              useReducer
+            </code>{' '}
+            and typed{' '}
+            <code className="text-indigo-400 font-mono text-xs">
+              TaskAction
+            </code>{' '}
+            unions.
           </p>
         </div>
 
