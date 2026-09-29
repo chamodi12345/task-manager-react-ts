@@ -9,6 +9,8 @@ export interface TaskContextType {
   setFilter: (filter: FilterStatus) => void
   searchQuery: string
   setSearchQuery: (query: string) => void
+  isLoading: boolean
+  error: string | null
   counts: {
     all: number
     active: number
@@ -19,6 +21,7 @@ export interface TaskContextType {
   toggleTask: (id: string) => void
   deleteTask: (id: string) => void
   clearCompleted: () => void
+  loadRemoteTasks: () => Promise<void>
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined)
