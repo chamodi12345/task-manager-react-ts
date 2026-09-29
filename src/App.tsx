@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AddTaskForm } from './components/AddTaskForm'
 import { TaskList } from './components/TaskList'
+import { TaskStats } from './components/TaskStats'
 import type { Task } from './types/task'
 
 const INITIAL_TASKS: Task[] = [
@@ -17,6 +18,11 @@ const INITIAL_TASKS: Task[] = [
   {
     id: '3',
     title: 'Build task creation form and type event handlers',
+    completed: true,
+  },
+  {
+    id: '4',
+    title: 'Lift state up and handle toggle, delete, and bulk actions',
     completed: false,
   },
 ]
@@ -45,7 +51,9 @@ function App() {
     setTasks((prev) => prev.filter((task) => task.id !== id))
   }
 
-  const completedCount = tasks.filter((t) => t.completed).length
+  const handleClearCompleted = () => {
+    setTasks((prev) => prev.filter((task) => !task.completed))
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-indigo-500 selection:text-white">
@@ -53,29 +61,25 @@ function App() {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            Feature 3: Add Task Form
+            Feature 4: Toggle, Delete & Stats
           </div>
-          <span className="text-xs text-slate-400 font-medium">
-            {completedCount} of {tasks.length} done
+          <span className="text-xs text-slate-500 font-mono">
+            Lifting State
           </span>
         </div>
 
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Task Manager
+            Task Operations
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Controlled inputs and typed React events (
-            <code className="text-indigo-400 font-mono text-xs">
-              ChangeEvent
-            </code>
-            ,{' '}
-            <code className="text-indigo-400 font-mono text-xs">FormEvent</code>
-            ).
+            Lifting state up, handling callbacks as props, and bulk actions.
           </p>
         </div>
 
         <AddTaskForm onAddTask={handleAddTask} />
+
+        <TaskStats tasks={tasks} onClearCompleted={handleClearCompleted} />
 
         <TaskList
           tasks={tasks}
