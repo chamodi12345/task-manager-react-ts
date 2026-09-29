@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AddTaskForm } from './components/AddTaskForm'
 import { TaskList } from './components/TaskList'
 import type { Task } from './types/task'
 
@@ -11,17 +12,26 @@ const INITIAL_TASKS: Task[] = [
   {
     id: '2',
     title: 'Render lists with .map() and unique keys',
-    completed: false,
+    completed: true,
   },
   {
     id: '3',
-    title: 'Build task creation form and lift state up',
+    title: 'Build task creation form and type event handlers',
     completed: false,
   },
 ]
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
+
+  const handleAddTask = (title: string) => {
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      title,
+      completed: false,
+    }
+    setTasks((prev) => [newTask, ...prev])
+  }
 
   const handleToggleTask = (id: string) => {
     setTasks((prev) =>
@@ -43,7 +53,7 @@ function App() {
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            Feature 2: Task List
+            Feature 3: Add Task Form
           </div>
           <span className="text-xs text-slate-400 font-medium">
             {completedCount} of {tasks.length} done
@@ -52,16 +62,20 @@ function App() {
 
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
-            Task Management List
+            Task Manager
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Rendering dynamic arrays using{' '}
-            <code className="text-indigo-400 font-mono text-xs">.map()</code>{' '}
-            and unique{' '}
-            <code className="text-indigo-400 font-mono text-xs">key</code>{' '}
-            props.
+            Controlled inputs and typed React events (
+            <code className="text-indigo-400 font-mono text-xs">
+              ChangeEvent
+            </code>
+            ,{' '}
+            <code className="text-indigo-400 font-mono text-xs">FormEvent</code>
+            ).
           </p>
         </div>
+
+        <AddTaskForm onAddTask={handleAddTask} />
 
         <TaskList
           tasks={tasks}
