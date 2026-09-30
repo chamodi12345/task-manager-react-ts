@@ -8,7 +8,7 @@ import { TasksPage } from './pages/TasksPage'
 function App() {
   return (
     <TaskProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
           <Navbar />
           <Routes>

@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/task-manager-react-ts/',
   plugins: [react(), tailwindcss()],
   test: {
     globals: true,
